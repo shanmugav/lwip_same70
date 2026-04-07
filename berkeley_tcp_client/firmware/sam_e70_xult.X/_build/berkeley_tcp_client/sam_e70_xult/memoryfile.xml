@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <executable name="D:\net_apps_sam_e70_v71\apps\berkeley_tcp_client\firmware\sam_e70_xult.X\out\berkeley_tcp_client\sam_e70_xult.elf">
+    <memory name="program">
+      <units>bytes</units>
+      <length>2097152</length>
+      <used>70645</used>
+      <free>2026507</free>
+    </memory>
+    <memory name="data">
+      <units>bytes</units>
+      <length>393216</length>
+      <used>127602</used>
+      <free>265614</free>
+    </memory>
+  </executable>
+</project>

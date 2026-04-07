@@ -1,0 +1,111 @@
+configVersion: 1.0.0
+componentName: sys_command
+coreVersion: 5.8.4
+device: ATSAME70Q21B
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: sys_command
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: core
+  type: package
+  version: v3.13.1
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments:
+    children:
+    - children:
+      - attributes:
+          id: sys_command_SYS_CONSOLE_dependency
+        children:
+        - children:
+          - attributes:
+              id: targetComponentID
+            children:
+            - type: Value
+              value: sys_console_0
+            type: String
+          - attributes:
+              id: targetAttachmentID
+            children:
+            - type: Value
+              value: sys_console
+            type: String
+          type: Attributes
+        type: DirectDependency
+      type: Attachments
+    type: sys_command
+  elementPosition:
+    attributes:
+      id: __ROOTVIEW
+    children:
+    - children:
+      - attributes:
+          id: sys_command
+          x: '523'
+          y: '208'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols:
+    SYS_COMMAND_PRINT_BUFFER_SIZE:
+      attributes:
+        id: SYS_COMMAND_PRINT_BUFFER_SIZE
+      children:
+      - children:
+        - attributes:
+            value: '2560'
+          type: User
+        type: Values
+      type: Integer
+    SYS_CONSOLE_DEVICE:
+      attributes:
+        id: SYS_CONSOLE_DEVICE
+      children:
+      - children:
+        - attributes:
+            id: sys_command
+            value: SYS_CONSOLE_0
+          type: Dynamic
+        type: Values
+      type: String
+    SYS_CONSOLE_INDEX:
+      attributes:
+        id: SYS_CONSOLE_INDEX
+      children:
+      - children:
+        - attributes:
+            id: sys_command
+            value: '0'
+          type: Dynamic
+        type: Values
+      type: String
+    SYS_COMMAND_SYS_RTOS_TASK_HANDLE:
+      attributes:
+        id: SYS_COMMAND_SYS_RTOS_TASK_HANDLE
+      children:
+      - children:
+        - attributes:
+            id: enabled
+          children:
+          - type: Value
+            value: 'true'
+          type: Boolean
+        type: Attributes
+      type: File
+    SYS_COMMAND_SYS_RTOS_TASK:
+      attributes:
+        id: SYS_COMMAND_SYS_RTOS_TASK
+      children:
+      - children:
+        - attributes:
+            id: enabled
+          children:
+          - type: Value
+            value: 'true'
+          type: Boolean
+        type: Attributes
+      type: File
+  userData: {}

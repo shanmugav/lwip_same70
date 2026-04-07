@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:/Users/I41802/.mplab/app-finder/apps/cmake/v4.2.3/cmake-4.2.3-windows-x86_64/bin/cmake\" --build _build/berkeley_tcp_client/sam_e70_xult --parallel)",
+      "Bash(\"c:/Program Files/Microchip/MPLABX/v6.30/mplab_platform/bin/mdb.bat\")",
+      "Bash(\"C:/Users/I41802/.mplab/app-finder/apps/cmake/v4.2.3/cmake-4.2.3-windows-x86_64/bin/cmake\" --build _build/berkeley_tcp_client/sam_e70_xult --clean-first --parallel)"
+    ]
+  }
+}

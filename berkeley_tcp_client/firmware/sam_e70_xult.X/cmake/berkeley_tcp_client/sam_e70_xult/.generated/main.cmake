@@ -1,0 +1,68 @@
+include("${CMAKE_CURRENT_LIST_DIR}/rule.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/file.cmake")
+
+set(berkeley_tcp_client_sam_e70_xult_library_list )
+
+# Handle files with suffix s, for group sam_e70_xult-XC32
+if(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_assemble)
+add_library(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assemble OBJECT ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_assemble})
+    berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assemble_rule(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assemble)
+    list(APPEND berkeley_tcp_client_sam_e70_xult_library_list "$<TARGET_OBJECTS:berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assemble>")
+
+endif()
+
+# Handle files with suffix S, for group sam_e70_xult-XC32
+if(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_assembleWithPreprocess)
+add_library(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assembleWithPreprocess OBJECT ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_assembleWithPreprocess})
+    berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assembleWithPreprocess_rule(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assembleWithPreprocess)
+    list(APPEND berkeley_tcp_client_sam_e70_xult_library_list "$<TARGET_OBJECTS:berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_assembleWithPreprocess>")
+
+endif()
+
+# Handle files with suffix [cC], for group sam_e70_xult-XC32
+if(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_compile)
+add_library(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile OBJECT ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_compile})
+    berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_rule(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile)
+    list(APPEND berkeley_tcp_client_sam_e70_xult_library_list "$<TARGET_OBJECTS:berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile>")
+
+endif()
+
+# Handle files with suffix cpp, for group sam_e70_xult-XC32
+if(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_compile_cpp)
+add_library(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_cpp OBJECT ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_compile_cpp})
+    berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_cpp_rule(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_cpp)
+    list(APPEND berkeley_tcp_client_sam_e70_xult_library_list "$<TARGET_OBJECTS:berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_cpp>")
+
+endif()
+
+# Handle files with suffix [cC], for group sam_e70_xult-XC32
+if(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_dependentObject)
+add_library(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_dependentObject OBJECT ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_dependentObject})
+    berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_dependentObject_rule(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_dependentObject)
+    list(APPEND berkeley_tcp_client_sam_e70_xult_library_list "$<TARGET_OBJECTS:berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_dependentObject>")
+
+endif()
+
+
+# Main target for this project
+add_executable(berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk ${berkeley_tcp_client_sam_e70_xult_library_list})
+
+set_target_properties(berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk PROPERTIES
+    OUTPUT_NAME "sam_e70_xult"
+    SUFFIX ".elf"
+    RUNTIME_OUTPUT_DIRECTORY "${berkeley_tcp_client_sam_e70_xult_output_dir}")
+target_link_libraries(berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk PRIVATE ${berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_FILE_TYPE_link})
+
+# Add the link options from the rule file.
+berkeley_tcp_client_sam_e70_xult_link_rule( berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk)
+
+# Add bin2hex target for converting built file to a .hex file.
+string(REGEX REPLACE [.]elf$ .hex berkeley_tcp_client_sam_e70_xult_image_name_hex ${berkeley_tcp_client_sam_e70_xult_image_name})
+add_custom_target(berkeley_tcp_client_sam_e70_xult_Bin2Hex ALL
+    COMMAND ${MP_BIN2HEX} \"${berkeley_tcp_client_sam_e70_xult_output_dir}/${berkeley_tcp_client_sam_e70_xult_image_name}\"
+    BYPRODUCTS ${berkeley_tcp_client_sam_e70_xult_output_dir}/${berkeley_tcp_client_sam_e70_xult_image_name_hex}
+    COMMENT "Convert built file to .hex")
+add_dependencies(berkeley_tcp_client_sam_e70_xult_Bin2Hex berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk)
+
+
+

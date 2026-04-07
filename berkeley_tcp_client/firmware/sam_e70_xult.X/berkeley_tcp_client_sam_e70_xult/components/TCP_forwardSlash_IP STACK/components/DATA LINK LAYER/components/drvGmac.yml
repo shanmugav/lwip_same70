@@ -1,0 +1,64 @@
+configVersion: 1.0.0
+componentName: drvGmac
+coreVersion: 5.8.4
+device: ATSAME70Q21B
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: drvGmac
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: net
+  type: package
+  version: v3.11.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments:
+    children:
+    - children:
+      - attributes:
+          id: GMAC_PHY_Dependency
+        children:
+        - children:
+          - attributes:
+              id: targetComponentID
+            children:
+            - type: Value
+              value: drvExtPhyLan8740
+            type: String
+          - attributes:
+              id: targetAttachmentID
+            children:
+            - type: Value
+              value: libdrvExtPhyLan8740
+            type: String
+          type: Attributes
+        type: DirectDependency
+      type: Attachments
+    type: drvGmac
+  elementPosition:
+    attributes:
+      id: DATA LINK LAYER
+    children:
+    - children:
+      - attributes:
+          id: drvGmac
+          x: '180'
+          y: '20'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols:
+    DRV_GMAC_PHY_TYPE:
+      attributes:
+        id: DRV_GMAC_PHY_TYPE
+      children:
+      - children:
+        - attributes:
+            id: drvGmac
+            value: LAN8740
+          type: Dynamic
+        type: Values
+      type: String
+  userData: {}

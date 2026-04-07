@@ -1,0 +1,66 @@
+configVersion: 1.0.0
+componentName: net_Pres
+coreVersion: 5.8.4
+device: ATSAME70Q21B
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: net_Pres
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: net
+  type: package
+  version: v3.11.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments: {}
+  elementPosition:
+    attributes:
+      id: PRESENTATION LAYER
+    children:
+    - children:
+      - attributes:
+          id: net_Pres
+          x: '20'
+          y: '20'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols:
+    NET_PRES_SUPPORT_DATAGRAM:
+      attributes:
+        id: NET_PRES_SUPPORT_DATAGRAM
+      children:
+      - children:
+        - attributes:
+            id: net_Pres
+            value: 'true'
+          type: Dynamic
+        type: Values
+      type: Boolean
+    NET_PRES_SUPPORT_STREAM:
+      attributes:
+        id: NET_PRES_SUPPORT_STREAM
+      children:
+      - children:
+        - attributes:
+            id: net_Pres
+            value: 'true'
+          type: Dynamic
+        type: Values
+      type: Boolean
+    NET_PRES_SYS_RTOS_TASK:
+      attributes:
+        id: NET_PRES_SYS_RTOS_TASK
+      children:
+      - children:
+        - attributes:
+            id: enabled
+          children:
+          - type: Value
+            value: 'true'
+          type: Boolean
+        type: Attributes
+      type: File
+  userData: {}

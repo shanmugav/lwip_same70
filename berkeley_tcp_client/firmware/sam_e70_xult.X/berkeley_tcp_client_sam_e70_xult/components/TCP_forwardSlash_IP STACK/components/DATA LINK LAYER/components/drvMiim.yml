@@ -1,0 +1,55 @@
+configVersion: 1.0.0
+componentName: drvMiim
+coreVersion: 5.8.4
+device: ATSAME70Q21B
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyModule
+  name: drvMiim
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: net
+  type: package
+  version: v3.11.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments: {}
+  elementPosition:
+    attributes:
+      id: DATA LINK LAYER
+    children:
+    - children:
+      - attributes:
+          id: drvMiim
+          x: '420'
+          y: '20'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols:
+    DRV_MIIM_INSTANCES_NUMBER:
+      attributes:
+        id: DRV_MIIM_INSTANCES_NUMBER
+      children:
+      - children:
+        - attributes:
+            id: drvMiim
+            value: '1'
+          type: Dynamic
+        type: Values
+      type: Integer
+    DRV_SDHC_SYS_RTOS_TASK:
+      attributes:
+        id: DRV_SDHC_SYS_RTOS_TASK
+      children:
+      - children:
+        - attributes:
+            id: enabled
+          children:
+          - type: Value
+            value: 'true'
+          type: Boolean
+        type: Attributes
+      type: File
+  userData: {}

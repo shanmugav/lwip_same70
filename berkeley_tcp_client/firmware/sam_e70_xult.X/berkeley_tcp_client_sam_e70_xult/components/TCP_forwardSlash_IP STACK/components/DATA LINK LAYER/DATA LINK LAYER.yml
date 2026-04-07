@@ -1,0 +1,55 @@
+configVersion: 1.0.0
+componentName: DATA LINK LAYER
+coreVersion: 5.8.4
+device: ATSAME70Q21B
+library: []
+dependency:
+- dependencyPackage: class com.microchip.mcc.harmony.HarmonyGroupModule
+  name: DATA LINK LAYER
+  type: module
+  version: ''
+- dependencyPackage: ''
+  name: CMSIS_5
+  type: package
+  version: 5.9.1-dev
+- dependencyPackage: ''
+  name: bsp
+  type: package
+  version: v3.17.0
+- dependencyPackage: ''
+  name: core
+  type: package
+  version: v3.13.1
+- dependencyPackage: ''
+  name: crypto
+  type: package
+  version: v3.8.1
+- dependencyPackage: ''
+  name: csp
+  type: package
+  version: v3.18.0
+- dependencyPackage: ''
+  name: net
+  type: package
+  version: v3.11.0
+- dependencyPackage: ''
+  name: wolfssl
+  type: package
+  version: v5.4.0
+customDataClassName: com.microchip.utils_mh3.utils.persistence.CustomModuleData
+data:
+  attachments: {}
+  elementPosition:
+    attributes:
+      id: TCP/IP STACK
+    children:
+    - children:
+      - attributes:
+          id: DATA LINK LAYER
+          x: '517'
+          y: '22'
+        type: ElementPosition
+      type: ElementPositions
+    type: ComponentGraph
+  symbols: {}
+  userData: {}

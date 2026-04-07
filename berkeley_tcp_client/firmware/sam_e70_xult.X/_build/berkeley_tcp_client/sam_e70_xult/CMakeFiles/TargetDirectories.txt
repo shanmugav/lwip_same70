@@ -1,0 +1,5 @@
+D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile.dir
+D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk.dir
+D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/berkeley_tcp_client_sam_e70_xult_Bin2Hex.dir
+D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/edit_cache.dir
+D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/rebuild_cache.dir
