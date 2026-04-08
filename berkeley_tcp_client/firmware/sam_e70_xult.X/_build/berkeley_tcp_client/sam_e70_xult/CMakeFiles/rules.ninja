@@ -25,7 +25,7 @@ rule C_COMPILER__berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_compile_unsc
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__berkeley_tcp_client_sam_e70_xult_image_cEM1HXlk_
-  command = cmd.exe /C "$PRE_LINK && c:\PROGRA~1\MICROC~1\xc32\v5.10\bin\xc32-gcc.exe $FLAGS $LINK_FLAGS @$RSP_FILE -o $TARGET_FILE && $POST_BUILD"
+  command = C:\windows\system32\cmd.exe /C "$PRE_LINK && c:\PROGRA~1\MICROC~1\xc32\v5.10\bin\xc32-gcc.exe $FLAGS $LINK_FLAGS @$RSP_FILE -o $TARGET_FILE && $POST_BUILD"
   description = Linking C executable $TARGET_FILE
   rspfile = $RSP_FILE
   rspfile_content = $in $LINK_PATH $LINK_LIBRARIES
@@ -44,7 +44,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Users\I41802\.mplab\app-finder\apps\cmake\v4.2.3\cmake-4.2.3-windows-x86_64\bin\cmake.exe --regenerate-during-build -SD:\net_apps_sam_e70_v71\apps\berkeley_tcp_client\firmware\sam_e70_xult.X\cmake\berkeley_tcp_client\sam_e70_xult -BD:\net_apps_sam_e70_v71\apps\berkeley_tcp_client\firmware\sam_e70_xult.X\_build\berkeley_tcp_client\sam_e70_xult
+  command = C:\Users\I41802\.mplab\app-finder\apps\cmake\v4.2.3\cmake-4.2.3-windows-x86_64\bin\cmake.exe --regenerate-during-build -SD:\projects\test_project\lwip_same70\berkeley_tcp_client\firmware\sam_e70_xult.X\cmake\berkeley_tcp_client\sam_e70_xult -BD:\projects\test_project\lwip_same70\berkeley_tcp_client\firmware\sam_e70_xult.X\_build\berkeley_tcp_client\sam_e70_xult
   description = Re-running CMake...
   generator = 1
 

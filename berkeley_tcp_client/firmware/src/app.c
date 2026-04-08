@@ -158,17 +158,13 @@ void APP_Tasks(void) {
     switch (appData.state) {
         case APP_WAITING_FOR_INITIALIZATION:
         {
-              //SYS_CONSOLE_MESSAGE("Network interface link is up\r\n");
-             //break;
-             #if 1
             /* Wait for lwIP netif link to come up */
             if (netif_is_link_up(&g_netif)) {
                 SYS_CONSOLE_MESSAGE("Network interface link is up\r\n");
                 appData.state = APP_TCPIP_WAIT_FOR_IP;
             }
-            else
-               SYS_CONSOLE_MESSAGE("Network interface link is Down\r\n");
-                #endif
+            /* Yield while waiting -- avoid busy-polling */
+            vTaskDelay(100 / portTICK_PERIOD_MS);
             break;
         }
         case APP_TCPIP_WAIT_FOR_IP:
@@ -231,10 +227,17 @@ void APP_Tasks(void) {
             dbg_puts("[APP] Creating TCP socket...\n");
             if ((tcpSkt = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
                 dbg_puts("[APP] socket() FAILED\n");
-                return;
+                appData.state = APP_TCPIP_WAITING_FOR_COMMAND_INPUT;
+                APP_URL_Buffer[0] = '\0';
+                break;
             }
             appData.socket = tcpSkt;
             DBG_LOG_VAL("[APP] Socket created, fd:", tcpSkt);
+
+            /* Set receive timeout so recv() doesn't block forever */
+            int recv_timeout_ms = 5000;
+            setsockopt(tcpSkt, SOL_SOCKET, SO_RCVTIMEO, &recv_timeout_ms, sizeof(recv_timeout_ms));
+
             appData.state = APP_BSD_CONNECT;
         }
             break;
@@ -251,7 +254,10 @@ void APP_Tasks(void) {
             DBG_LOG_VAL("[APP] connect() returned:", ret);
             if (ret < 0) {
                 DBG_LOG_VAL("[APP] connect errno:", errno);
-                return;
+                closesocket(appData.socket);
+                appData.state = APP_TCPIP_WAITING_FOR_COMMAND_INPUT;
+                APP_URL_Buffer[0] = '\0';
+                break;
             }
             dbg_puts("[APP] Connected OK!\n");
             appData.state = APP_BSD_SEND;
@@ -271,6 +277,8 @@ void APP_Tasks(void) {
             DBG_LOG_VAL("[APP] send() returned:", sent);
             if (sent < 0) {
                 DBG_LOG_VAL("[APP] send errno:", errno);
+                appData.state = APP_BSD_CLOSE;
+                break;
             }
             dbg_puts("[APP] Waiting for response (recv)...\n");
             appData.state = APP_BSD_OPERATION;
@@ -291,9 +299,8 @@ void APP_Tasks(void) {
                     appData.state = APP_BSD_CLOSE;
                 } else {
                     DBG_LOG_VAL("[APP] recv error, errno:", errno);
-                    if (errno != EWOULDBLOCK) {
-                        appData.state = APP_BSD_CLOSE;
-                    }
+                    dbg_puts("[APP] recv timeout or error, closing\n");
+                    appData.state = APP_BSD_CLOSE;
                 }
                 break;
             }

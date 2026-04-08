@@ -1,8 +1,8 @@
-# Install script for directory: D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/cmake/berkeley_tcp_client/sam_e70_xult
+# Install script for directory: D:/projects/test_project/lwip_same70/berkeley_tcp_client/firmware/sam_e70_xult.X/cmake/berkeley_tcp_client/sam_e70_xult
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files/berkeley_tcp_client_sam_e70_xult_project")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/berkeley_tcp_client_sam_e70_xult_project")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,7 +40,7 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/install_local_manifest.txt"
+  file(WRITE "D:/projects/test_project/lwip_same70/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -56,6 +56,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "D:/projects/test_project/lwip_same70/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

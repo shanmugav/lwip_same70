@@ -1,7 +1,7 @@
 {
 	"InstallScripts" : 
 	[
-		"D:/net_apps_sam_e70_v71/apps/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/cmake_install.cmake"
+		"D:/projects/test_project/lwip_same70/berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

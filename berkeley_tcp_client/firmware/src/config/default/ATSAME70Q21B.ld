@@ -108,10 +108,10 @@ ENTRY(__XC32_RESET_HANDLER_NAME)
 MEMORY
 {
   rom (LRX) : ORIGIN = ROM_ORIGIN, LENGTH = ROM_LENGTH
-  ram (WX!R) : ORIGIN = RAM_ORIGIN, LENGTH = RAM_LENGTH-__XC32_ITCM_LENGTH-__XC32_DTCM_LENGTH
+  ram (WX!R) : ORIGIN = RAM_ORIGIN, LENGTH = RAM_LENGTH-__XC32_ITCM_LENGTH-__XC32_DTCM_LENGTH-0x1000
  itcm (WX) : ORIGIN = ITCM_ORIGIN, LENGTH = __XC32_ITCM_LENGTH
 dtcm (WX!R) : ORIGIN = DTCM_ORIGIN, LENGTH = __XC32_DTCM_LENGTH
-
+  gmac_nocache (WX!R) : ORIGIN = 0x2045f000, LENGTH = 0x1000
 }
 /*************************************************************************
  * Output region definitions.
@@ -254,6 +254,14 @@ SECTIONS
     . = ALIGN(4);
     _end = . ;
     _ram_end_ = ORIGIN(ram) + LENGTH(ram) -1 ;
-    
+
+    /* GMAC DMA descriptors in non-cacheable SRAM (MPU region 6) */
+    .gmac_nocache (NOLOAD) :
+    {
+        . = ALIGN(32);
+        *(.gmac_nocache)
+        *(.gmac_nocache.*)
+    } > gmac_nocache
+
 }
 

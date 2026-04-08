@@ -22,7 +22,7 @@
 #define MEMP_NUM_SYS_TIMEOUT        8
 
 /* --- Pbuf --- */
-#define PBUF_POOL_SIZE              16
+#define PBUF_POOL_SIZE              24
 #define PBUF_POOL_BUFSIZE           1536
 
 /* --- TCP --- */

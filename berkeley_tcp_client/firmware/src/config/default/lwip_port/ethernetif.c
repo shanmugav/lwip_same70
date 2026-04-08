@@ -88,10 +88,18 @@ typedef struct {
     volatile uint32_t status;
 } gmac_tx_descriptor_t;
 
-/* ---- GMAC driver instance ---- */
+/* ---- DMA descriptors in non-cacheable SRAM (MPU region 6 at 0x2045f000) ---- */
+static gmac_rx_descriptor_t gs_rx_desc[GMAC_RX_BUFFERS]
+    __attribute__((aligned(32), section(".gmac_nocache")));
+static gmac_tx_descriptor_t gs_tx_desc[GMAC_TX_BUFFERS]
+    __attribute__((aligned(32), section(".gmac_nocache")));
+static gmac_tx_descriptor_t gs_tx_desc_null
+    __attribute__((aligned(8), section(".gmac_nocache")));
+static gmac_rx_descriptor_t gs_rx_desc_null
+    __attribute__((aligned(8), section(".gmac_nocache")));
+
+/* ---- GMAC driver instance (cacheable SRAM) ---- */
 struct gmac_device {
-    gmac_rx_descriptor_t rx_desc[GMAC_RX_BUFFERS] __attribute__((aligned(8)));
-    gmac_tx_descriptor_t tx_desc[GMAC_TX_BUFFERS] __attribute__((aligned(8)));
     struct pbuf *rx_pbuf[GMAC_RX_BUFFERS];
     uint8_t tx_buf[GMAC_TX_BUFFERS][GMAC_TX_UNITSIZE];
     uint32_t us_rx_idx;
@@ -100,11 +108,7 @@ struct gmac_device {
     sys_sem_t rx_sem;
 };
 
-static struct gmac_device gs_gmac_dev __attribute__((aligned(8)));
-
-/* Null descriptors for unused priority queues */
-static gmac_tx_descriptor_t gs_tx_desc_null __attribute__((aligned(8)));
-static gmac_rx_descriptor_t gs_rx_desc_null __attribute__((aligned(8)));
+static struct gmac_device gs_gmac_dev __attribute__((aligned(32)));
 
 /* Global netif instance */
 struct netif g_netif;
@@ -114,18 +118,16 @@ uint32_t gmac_rx_desc_available(void)
 {
     uint32_t avail = 0;
     for (uint32_t d = 0; d < GMAC_RX_BUFFERS; d++) {
-        DCACHE_CLEAN_INVALIDATE_BY_ADDR((uint32_t *)&gs_gmac_dev.rx_desc[d], 8);
-        if (!(gs_gmac_dev.rx_desc[d].addr & GMAC_RXD_OWNERSHIP)) avail++;
+        if (!(gs_rx_desc[d].addr & GMAC_RXD_OWNERSHIP)) avail++;
     }
     return avail;
 }
 
 uint32_t gmac_rx_desc0_addr(void) {
-    DCACHE_CLEAN_INVALIDATE_BY_ADDR((uint32_t *)&gs_gmac_dev.rx_desc[0], 8);
-    return gs_gmac_dev.rx_desc[0].addr;
+    return gs_rx_desc[0].addr;
 }
 uint32_t gmac_rx_desc0_status(void) {
-    return gs_gmac_dev.rx_desc[0].status;
+    return gs_rx_desc[0].status;
 }
 
 /* MAC address */
@@ -294,14 +296,21 @@ static void gmac_rx_populate_queue(struct gmac_device *p_dev)
             }
             allocated++;
 
-            if (i == GMAC_RX_BUFFERS - 1)
-                p_dev->rx_desc[i].addr = ((uint32_t)p->payload & GMAC_RXD_ADDR_MASK) | GMAC_RXD_WRAP;
-            else
-                p_dev->rx_desc[i].addr = (uint32_t)p->payload & GMAC_RXD_ADDR_MASK;
+            /* Invalidate any stale cached data for this payload buffer.
+             * Critical for ICMP: lwIP reuses the RX pbuf for the echo reply,
+             * so gmac_low_level_output's memcpy loads these cache lines.
+             * Without invalidation, the next DCACHE_CLEAN_INVALIDATE after
+             * GMAC receives a new frame would push this stale cached data
+             * to RAM, overwriting the freshly DMA'd packet. */
+            DCACHE_CLEAN_INVALIDATE_BY_ADDR((uint32_t *)p->payload, GMAC_FRAME_LENTGH_MAX);
 
-            p_dev->rx_desc[i].status = 0;
-            /* Clean cache so GMAC DMA sees the descriptor update */
-            DCACHE_CLEAN_BY_ADDR((uint32_t *)&p_dev->rx_desc[i], sizeof(gmac_rx_descriptor_t));
+            /* Descriptors are in non-cacheable memory -- no descriptor cache ops needed */
+            if (i == GMAC_RX_BUFFERS - 1)
+                gs_rx_desc[i].addr = ((uint32_t)p->payload & GMAC_RXD_ADDR_MASK) | GMAC_RXD_WRAP;
+            else
+                gs_rx_desc[i].addr = (uint32_t)p->payload & GMAC_RXD_ADDR_MASK;
+
+            gs_rx_desc[i].status = 0;
             p_dev->rx_pbuf[i] = p;
         }
     }
@@ -318,14 +327,14 @@ static void gmac_rx_init(struct gmac_device *p_dev)
 
     for (i = 0; i < GMAC_RX_BUFFERS; i++) {
         p_dev->rx_pbuf[i] = NULL;
-        p_dev->rx_desc[i].addr = 0;
-        p_dev->rx_desc[i].status = 0;
+        gs_rx_desc[i].addr = 0;
+        gs_rx_desc[i].status = 0;
     }
-    p_dev->rx_desc[GMAC_RX_BUFFERS - 1].addr |= GMAC_RXD_WRAP;
+    gs_rx_desc[GMAC_RX_BUFFERS - 1].addr |= GMAC_RXD_WRAP;
 
     gmac_rx_populate_queue(p_dev);
 
-    GMAC_REGS->GMAC_RBQB = (uint32_t)&p_dev->rx_desc[0];
+    GMAC_REGS->GMAC_RBQB = (uint32_t)&gs_rx_desc[0];
 }
 
 static void gmac_tx_init(struct gmac_device *p_dev)
@@ -334,12 +343,12 @@ static void gmac_tx_init(struct gmac_device *p_dev)
     p_dev->us_tx_idx = 0;
 
     for (i = 0; i < GMAC_TX_BUFFERS; i++) {
-        p_dev->tx_desc[i].addr = (uint32_t)&p_dev->tx_buf[i][0];
-        p_dev->tx_desc[i].status = GMAC_TXD_USED | GMAC_TXD_LAST;
+        gs_tx_desc[i].addr = (uint32_t)&p_dev->tx_buf[i][0];
+        gs_tx_desc[i].status = GMAC_TXD_USED | GMAC_TXD_LAST;
     }
-    p_dev->tx_desc[GMAC_TX_BUFFERS - 1].status |= GMAC_TXD_WRAP;
+    gs_tx_desc[GMAC_TX_BUFFERS - 1].status |= GMAC_TXD_WRAP;
 
-    GMAC_REGS->GMAC_TBQB = (uint32_t)&p_dev->tx_desc[0];
+    GMAC_REGS->GMAC_TBQB = (uint32_t)&gs_tx_desc[0];
 }
 
 /* ---- Low-level GMAC init ---- */
@@ -392,7 +401,7 @@ static void gmac_low_level_init(struct netif *netif)
     /* Clear priority queue interrupts and set null descriptors for unused queues */
     gs_tx_desc_null.addr = 0xFFFFFFFF;
     gs_tx_desc_null.status = GMAC_TXD_WRAP | GMAC_TXD_USED;
-    gs_rx_desc_null.addr = (0xFFFFFFFF & GMAC_RXD_ADDR_MASK) | GMAC_RXD_WRAP;
+    gs_rx_desc_null.addr = (0xFFFFFFFF & GMAC_RXD_ADDR_MASK) | GMAC_RXD_WRAP | GMAC_RXD_OWNERSHIP;
     gs_rx_desc_null.status = 0;
 
     for (i = 1; i < GMAC_NUM_QUEUES; i++) {
@@ -429,10 +438,11 @@ static void gmac_low_level_init(struct netif *netif)
     gmac_rx_init(&gs_gmac_dev);
     gmac_tx_init(&gs_gmac_dev);
 
-    /* Clean ALL descriptors and pbuf data to RAM so DMA sees correct data */
+    /* Descriptors are in non-cacheable memory -- no cache clean needed.
+     * Clean only the cacheable gmac_dev struct (tx_buf, etc.) */
     DCACHE_CLEAN_BY_ADDR((uint32_t *)&gs_gmac_dev, sizeof(gs_gmac_dev));
-    DBG_LOG_VAL("[GMAC-07] RX desc base:", (uint32_t)&gs_gmac_dev.rx_desc[0]);
-    DBG_LOG_VAL("[GMAC-08] TX desc base:", (uint32_t)&gs_gmac_dev.tx_desc[0]);
+    DBG_LOG_VAL("[GMAC-07] RX desc base:", (uint32_t)&gs_rx_desc[0]);
+    DBG_LOG_VAL("[GMAC-08] TX desc base:", (uint32_t)&gs_tx_desc[0]);
 
     /* Enable TX, RX, and statistics write AFTER descriptors and PHY are ready */
     GMAC_REGS->GMAC_NCR |= GMAC_NCR_TXEN_Msk | GMAC_NCR_RXEN_Msk | GMAC_NCR_WESTAT_Msk;
@@ -456,17 +466,22 @@ static err_t gmac_low_level_output(struct netif *netif, struct pbuf *p)
     struct pbuf *q;
     uint8_t *buffer;
 
-    /* Handle TX errors */
-    if (GMAC_REGS->GMAC_TSR & GMAC_TX_ERRORS) {
-        GMAC_REGS->GMAC_NCR &= ~GMAC_NCR_TXEN_Msk;
-        LINK_STATS_INC(link.err);
-        LINK_STATS_INC(link.drop);
-        gmac_tx_init(ps_dev);
-        GMAC_REGS->GMAC_TSR = GMAC_TX_ERRORS;
-        GMAC_REGS->GMAC_NCR |= GMAC_NCR_TXEN_Msk;
+    /* Clear all TSR status bits (write-1-to-clear) and handle errors */
+    {
+        uint32_t tsr = GMAC_REGS->GMAC_TSR;
+        if (tsr) {
+            GMAC_REGS->GMAC_TSR = tsr;
+        }
+        if (tsr & GMAC_TX_ERRORS) {
+            GMAC_REGS->GMAC_NCR &= ~GMAC_NCR_TXEN_Msk;
+            LINK_STATS_INC(link.err);
+            LINK_STATS_INC(link.drop);
+            gmac_tx_init(ps_dev);
+            GMAC_REGS->GMAC_NCR |= GMAC_NCR_TXEN_Msk;
+        }
     }
 
-    buffer = (uint8_t *)ps_dev->tx_desc[ps_dev->us_tx_idx].addr;
+    buffer = (uint8_t *)gs_tx_desc[ps_dev->us_tx_idx].addr;
 
     /* Copy pbuf chain into TX buffer */
     for (q = p; q != NULL; q = q->next) {
@@ -474,16 +489,14 @@ static err_t gmac_low_level_output(struct netif *netif, struct pbuf *p)
         buffer += q->len;
     }
 
-    /* Clean cache for TX buffer data so DMA reads correct content */
-    DCACHE_CLEAN_BY_ADDR((uint32_t *)ps_dev->tx_desc[ps_dev->us_tx_idx].addr, p->tot_len);
+    /* Clean cache for TX buffer data (tx_buf is in cacheable SRAM) */
+    DCACHE_CLEAN_BY_ADDR((uint32_t *)gs_tx_desc[ps_dev->us_tx_idx].addr, p->tot_len);
 
-    /* Set length and clear used bit to hand to GMAC */
-    ps_dev->tx_desc[ps_dev->us_tx_idx].status =
-        (ps_dev->tx_desc[ps_dev->us_tx_idx].status & GMAC_TXD_WRAP) |
+    /* Set length and clear used bit to hand to GMAC.
+     * Descriptors are in non-cacheable memory -- no cache ops needed. */
+    gs_tx_desc[ps_dev->us_tx_idx].status =
+        (gs_tx_desc[ps_dev->us_tx_idx].status & GMAC_TXD_WRAP) |
         GMAC_TXD_LAST | (p->tot_len & GMAC_TXD_LEN_MASK);
-
-    /* Clean cache for TX descriptor so DMA sees the updated status */
-    DCACHE_CLEAN_BY_ADDR((uint32_t *)&ps_dev->tx_desc[ps_dev->us_tx_idx], sizeof(gmac_tx_descriptor_t));
 
     ps_dev->us_tx_idx = (ps_dev->us_tx_idx + 1) % GMAC_TX_BUFFERS;
 
@@ -509,27 +522,35 @@ static struct pbuf *gmac_low_level_input(struct netif *netif)
     struct pbuf *p = NULL;
     uint32_t length;
     uint32_t i;
-    gmac_rx_descriptor_t *p_rx = &ps_dev->rx_desc[ps_dev->us_rx_idx];
+    volatile gmac_rx_descriptor_t *p_rx = &gs_rx_desc[ps_dev->us_rx_idx];
 
-    /* Handle RX errors */
-    if (GMAC_REGS->GMAC_RSR & GMAC_RX_ERRORS) {
-        GMAC_REGS->GMAC_NCR &= ~GMAC_NCR_RXEN_Msk;
-        LINK_STATS_INC(link.err);
-        LINK_STATS_INC(link.drop);
-
-        for (i = 0; i < GMAC_RX_BUFFERS; i++) {
-            if (ps_dev->rx_pbuf[i] != NULL) {
-                pbuf_free(ps_dev->rx_pbuf[i]);
-                ps_dev->rx_pbuf[i] = NULL;
-            }
+    /* Clear all RSR status bits (write-1-to-clear).
+     * BNA (Buffer Not Available) MUST be cleared promptly or GMAC
+     * pauses/degrades reception until software acknowledges it. */
+    {
+        uint32_t rsr = GMAC_REGS->GMAC_RSR;
+        if (rsr) {
+            GMAC_REGS->GMAC_RSR = rsr;  /* clear all set bits */
         }
-        gmac_rx_init(ps_dev);
-        GMAC_REGS->GMAC_RSR = GMAC_RX_ERRORS;
-        GMAC_REGS->GMAC_NCR |= GMAC_NCR_RXEN_Msk;
+
+        /* On hard errors (overrun, HRESP), reset the RX descriptor ring */
+        if (rsr & GMAC_RX_ERRORS) {
+            GMAC_REGS->GMAC_NCR &= ~GMAC_NCR_RXEN_Msk;
+            LINK_STATS_INC(link.err);
+            LINK_STATS_INC(link.drop);
+
+            for (i = 0; i < GMAC_RX_BUFFERS; i++) {
+                if (ps_dev->rx_pbuf[i] != NULL) {
+                    pbuf_free(ps_dev->rx_pbuf[i]);
+                    ps_dev->rx_pbuf[i] = NULL;
+                }
+            }
+            gmac_rx_init(ps_dev);
+            GMAC_REGS->GMAC_NCR |= GMAC_NCR_RXEN_Msk;
+        }
     }
 
-    /* Clean+Invalidate cache for RX descriptor (safe for unaligned addresses) */
-    DCACHE_CLEAN_INVALIDATE_BY_ADDR((uint32_t *)p_rx, sizeof(gmac_rx_descriptor_t));
+    /* Descriptors are in non-cacheable memory -- CPU always sees GMAC's DMA updates */
 
     /* Check ownership bit - set by GMAC when frame received */
     if (p_rx->addr & GMAC_RXD_OWNERSHIP) {
@@ -538,7 +559,9 @@ static struct pbuf *gmac_low_level_input(struct netif *netif)
         /* Fetch pre-allocated pbuf */
         p = ps_dev->rx_pbuf[ps_dev->us_rx_idx];
 
-        /* Clean+Invalidate cache for received packet data (safe for unaligned pbuf payload) */
+        /* Clean+Invalidate cache for received packet data (payload is in cacheable SRAM).
+         * Must use Clean+Invalidate (not bare Invalidate) because the pbuf payload
+         * may share a cache line with other pool data that has dirty writes. */
         DCACHE_CLEAN_INVALIDATE_BY_ADDR((uint32_t *)p->payload, GMAC_FRAME_LENTGH_MAX);
 
         p->len = length;
@@ -549,12 +572,8 @@ static struct pbuf *gmac_low_level_input(struct netif *netif)
 
         LINK_STATS_INC(link.recv);
 
-        /* Refill empty descriptors (sets new addr with ownership=0 and cleans cache) */
+        /* Refill empty descriptors */
         gmac_rx_populate_queue(ps_dev);
-
-        /* DO NOT touch p_rx->addr here - gmac_rx_populate_queue already set
-         * ownership=0 and cleaned the cache. Writing here would make the cache
-         * line dirty, causing a subsequent CLEAN to overwrite GMAC DMA updates. */
 
         ps_dev->us_rx_idx = (ps_dev->us_rx_idx + 1) % GMAC_RX_BUFFERS;
 
@@ -577,10 +596,12 @@ static void gmac_task(void *pvParameters)
     struct gmac_device *ps_dev = pvParameters;
 
     while (1) {
-        /* Wait for RX interrupt (short timeout for fast polling) */
-        sys_arch_sem_wait(&ps_dev->rx_sem, 2);
+        /* Wait for RX interrupt or timeout */
+        sys_arch_sem_wait(&ps_dev->rx_sem, 10);
 
-        /* Drain ALL available packets from the descriptor ring */
+        /* Process available packets one at a time, yielding between each
+         * so the tcpip_thread (same priority) gets CPU time to handle
+         * the packet (e.g., generate ICMP echo reply) before we continue. */
         struct pbuf *p;
         while ((p = gmac_low_level_input(ps_dev->netif)) != NULL) {
             struct eth_hdr *ethhdr = p->payload;
@@ -595,6 +616,8 @@ static void gmac_task(void *pvParameters)
                 pbuf_free(p);
                 break;
             }
+            /* Yield to let tcpip_thread process before checking for more */
+            taskYIELD();
         }
     }
 }
