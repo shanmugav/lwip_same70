@@ -1261,7 +1261,8 @@
                 },
                 "berkeley_tcp_client/firmware/sam_e70_xult.X/out/berkeley_tcp_client/sam_e70_xult.elf",
                 "berkeley_tcp_client/firmware/sam_e70_xult.X/out/berkeley_tcp_client/sam_e70_xult.hex",
-                "berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/4.2.3/CompilerIdCXX/CMakeCXXCompilerId.cpp"
+                "berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/4.2.3/CompilerIdCXX/CMakeCXXCompilerId.cpp",
+                "berkeley_tcp_client/firmware/sam_e70_xult.X/_build/berkeley_tcp_client/sam_e70_xult/CMakeFiles/4.2.3/CompilerIdC/CMakeCCompilerId.c"
             ]
         }
     ]

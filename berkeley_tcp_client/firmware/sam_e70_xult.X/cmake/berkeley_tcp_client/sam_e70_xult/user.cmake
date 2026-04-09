@@ -85,27 +85,9 @@ target_include_directories(berkeley_tcp_client_sam_e70_xult_sam_e70_xult_XC32_co
     "${SRC_BASE}/config/default"
 )
 
-# === Exclude Harmony TCP/IP, GMAC, MIIM, ethphy, net_pres sources from build ===
-set(HARMONY_TCPIP_EXCLUDE
-    "${SRC_BASE}/config/default/library/tcpip/src/arp.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/berkeley_api.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/dhcp.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/dns.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/hash_fnv.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/helpers.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/icmp.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/ipv4.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/oahash.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcp.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_announce.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_commands.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_heap_alloc.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_heap_internal.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_helpers.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_manager.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_notify.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/tcpip_packet.c"
-    "${SRC_BASE}/config/default/library/tcpip/src/udp.c"
+# === Exclude remaining Harmony GMAC, MIIM, ethphy, net_pres sources from build ===
+# (Harmony TCP/IP library/tcpip directory was removed -- replaced by lwIP)
+set(HARMONY_EXCLUDE
     "${SRC_BASE}/config/default/driver/gmac/src/dynamic/drv_gmac.c"
     "${SRC_BASE}/config/default/driver/gmac/src/dynamic/drv_gmac_lib_samE7x_V7x.c"
     "${SRC_BASE}/config/default/driver/miim/src/dynamic/drv_miim.c"
@@ -117,4 +99,4 @@ set(HARMONY_TCPIP_EXCLUDE
     "${SRC_BASE}/config/default/net_pres/pres/src/net_pres.c"
 )
 
-set_source_files_properties(${HARMONY_TCPIP_EXCLUDE} PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(${HARMONY_EXCLUDE} PROPERTIES HEADER_FILE_ONLY TRUE)
